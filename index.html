@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Location Session</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background-color: #0F0F1A;
+      color: #FFFFFF;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      text-align: center;
+      padding: 24px 16px;
+    }
+    .card {
+      background-color: #1E1E2C;
+      padding: 36px 24px;
+      border-radius: 24px;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+      max-width: 380px;
+      width: 100%;
+      border: 1px solid #2A2D3E;
+    }
+    .icon { font-size: 44px; margin-bottom: 12px; }
+    h1 { font-size: 24px; font-weight: 800; margin: 0 0 6px 0; color: #FFFFFF; }
+    p.sub { color: #888888; font-size: 14px; margin: 0 0 20px 0; }
+    .code-badge {
+      display: inline-block;
+      background-color: #141422;
+      color: #00D2D3;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      padding: 10px 20px;
+      border-radius: 12px;
+      border: 1.5px dashed #00D2D3;
+      margin-bottom: 24px;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      background-color: #6C5CE7;
+      color: #FFFFFF;
+      text-decoration: none;
+      padding: 15px 20px;
+      border-radius: 14px;
+      font-weight: bold;
+      font-size: 16px;
+      margin-bottom: 12px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+    }
+    .btn-secondary {
+      display: block;
+      width: 100%;
+      background-color: #2A2D3E;
+      color: #00D2D3;
+      text-decoration: none;
+      padding: 13px 20px;
+      border-radius: 14px;
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 12px;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-copy {
+      display: block;
+      width: 100%;
+      background-color: transparent;
+      color: #AAAAAA;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 14px;
+      font-weight: 600;
+      font-size: 13px;
+      border: 1px solid #333344;
+      cursor: pointer;
+    }
+    .toast {
+      margin-top: 14px;
+      color: #00D2D3;
+      font-size: 13px;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">📍</div>
+    <h1>Live Location Tracker</h1>
+    <p class="sub" id="status">Connecting to live location session...</p>
+    
+    <div id="code-box" class="code-badge">LIVE12</div>
+
+    <a id="open-btn" class="btn" href="#">Open Live Location App</a>
+    <a id="expo-btn" class="btn-secondary" href="#">Open in Expo Go (Dev)</a>
+    <button id="copy-btn" class="btn-copy">📋 Copy Session Code</button>
+    <div id="toast" class="toast">Session code copied to clipboard!</div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = (urlParams.get('code') || 'LIVE12').toUpperCase();
+    document.getElementById('code-box').innerText = code;
+
+    // 1. Standalone Native Custom Scheme for iOS & Android
+    const nativeScheme = "livelocation://join?code=" + code;
+
+    // 2. Android Native Intent Scheme (Native 1-tap open on Android Chrome/WhatsApp)
+    const androidIntent = "intent://join?code=" + code + "#Intent;scheme=livelocation;package=com.example.livelocation;end";
+
+    // 3. Expo Go Development Testing Scheme
+    const expoScheme = "exp://?code=" + code;
+
+    document.getElementById('expo-btn').href = expoScheme;
+
+    function launchApp() {
+      const isAndroid = /android/i.test(navigator.userAgent);
+      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+      if (isAndroid) {
+        window.location.href = androidIntent;
+      } else if (isIOS) {
+        window.location.href = nativeScheme;
+      } else {
+        window.location.href = nativeScheme;
+      }
+    }
+
+    document.getElementById('open-btn').addEventListener('click', function(e) {
+      e.preventDefault();
+      launchApp();
+    });
+
+    document.getElementById('copy-btn').addEventListener('click', function() {
+      navigator.clipboard.writeText(code).then(() => {
+        const toast = document.getElementById('toast');
+        toast.style.opacity = '1';
+        setTimeout(() => { toast.style.opacity = '0'; }, 2500);
+      });
+    });
+
+    // Auto-trigger deep link launch when opened from WhatsApp
+    if (code) {
+      document.getElementById('status').innerText = "Joining live session " + code + "...";
+      setTimeout(launchApp, 300);
+    }
+  </script>
+</body>
+</html>

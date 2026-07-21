@@ -1,0 +1,48 @@
+name: Build Physical iOS IPA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Expo Prebuild (Generate Native iOS Project)
+        run: npx expo prebuild --platform ios
+
+      - name: Build Unsigned Physical ARM64 iOS App
+        run: |
+          cd ios
+          xcodebuild -workspace LiveLocation.xcworkspace \
+                     -scheme LiveLocation \
+                     -configuration Release \
+                     -sdk iphoneos \
+                     -derivedDataPath build \
+                     CODE_SIGN_IDENTITY="" \
+                     CODE_SIGNING_REQUIRED=NO \
+                     CODE_SIGNING_ALLOWED=NO
+
+      - name: Package IPA for iLoader / Sideloadly
+        run: |
+          mkdir -p Payload
+          cp -r ios/build/Build/Products/Release-iphoneos/LiveLocation.app Payload/
+          zip -r LiveLocation.ipa Payload
+
+      - name: Upload iOS IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LiveLocation-iOS-Physical-IPA
+          path: LiveLocation.ipa
