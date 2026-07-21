@@ -23,10 +23,9 @@ jobs:
       - name: Run Expo Prebuild (Generate Native iOS Project)
         run: npx expo prebuild --platform ios
 
-      - name: Pre-bundle React Native Assets
+      - name: Bundle React Native JS & Assets
         run: |
-          mkdir -p ios/LiveLocation
-          npx expo export:embed --platform ios --dev false --bundle-output ios/main.jsbundle --assets-dest ios || true
+          npx expo export:embed --platform ios --dev false --bundle-output ios/main.jsbundle --assets-dest ios/assets
 
       - name: Build Unsigned Physical ARM64 iOS App (SKIP_BUNDLING=1)
         run: |
@@ -42,10 +41,12 @@ jobs:
                      CODE_SIGNING_ALLOWED=NO \
                      SKIP_BUNDLING=1
 
-      - name: Package IPA for iLoader / Sideloadly
+      - name: Package IPA with Embedded Bundle for iLoader
         run: |
           mkdir -p Payload
           cp -r ios/build/Build/Products/Release-iphoneos/LiveLocation.app Payload/
+          cp ios/main.jsbundle Payload/LiveLocation.app/main.jsbundle
+          cp -r ios/assets Payload/LiveLocation.app/ 2>/dev/null || true
           zip -r LiveLocation.ipa Payload
 
       - name: Upload iOS IPA Artifact
