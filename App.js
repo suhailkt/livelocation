@@ -37,6 +37,13 @@ import {
 import { distanceInMeters, formatDistance } from './src/utils/haversine';
 import { openMapsNavigation } from './src/utils/navigationUtils';
 
+// Catch and display any unhandled JS errors in an Alert popup instead of closing
+if (global.ErrorUtils) {
+  global.ErrorUtils.setGlobalHandler((error, isFatal) => {
+    Alert.alert('App Error Diagnostic', `${error?.name}: ${error?.message}\n\nStack:\n${error?.stack?.substring(0, 300)}`);
+  });
+}
+
 // Default Fixed Session Code to eliminate dynamic DB creation costs
 const FIXED_SESSION_CODE = 'LIVE12';
 // Participant stale timeout (3 minutes)
