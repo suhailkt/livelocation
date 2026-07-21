@@ -25,6 +25,8 @@ jobs:
 
       - name: Build Unsigned Physical ARM64 iOS App
         run: |
+          export NODE_BINARY=$(which node)
+          export PATH=$PATH:$(dirname $(which node))
           cd ios
           xcodebuild -workspace LiveLocation.xcworkspace \
                      -scheme LiveLocation \
