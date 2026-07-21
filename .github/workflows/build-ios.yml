@@ -23,10 +23,19 @@ jobs:
       - name: Run Expo Prebuild (Generate Native iOS Project)
         run: npx expo prebuild --platform ios
 
+      - name: Configure Xcode Node Environment
+        run: |
+          NODE_PATH=$(which node)
+          echo "export NODE_BINARY=$NODE_PATH" > ios/.xcode.env.local
+          echo "export PATH=\$PATH:$(dirname $NODE_PATH)" >> ios/.xcode.env.local
+
+      - name: Pre-bundle React Native Assets
+        run: |
+          npx react-native bundle --entry-file index.js --platform ios --dev false --bundle-output ios/main.jsbundle --assets-dest ios || true
+
       - name: Build Unsigned Physical ARM64 iOS App
         run: |
           export NODE_BINARY=$(which node)
-          export PATH=$PATH:$(dirname $(which node))
           cd ios
           xcodebuild -workspace LiveLocation.xcworkspace \
                      -scheme LiveLocation \
