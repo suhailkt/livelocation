@@ -11,6 +11,10 @@
       "bundleIdentifier": "com.livelocationmit.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
+        "LSApplicationQueriesSchemes": [
+          "comgooglemaps",
+          "maps"
+        ],
         "NSLocationWhenInUseUsageDescription": "This app uses your location to share live coordinates with active session participants.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses background location to stream updates to your live location session."
       }
