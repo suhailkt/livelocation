@@ -23,17 +23,12 @@ jobs:
       - name: Run Expo Prebuild (Generate Native iOS Project)
         run: npx expo prebuild --platform ios
 
-      - name: Configure Xcode Node Environment
-        run: |
-          NODE_PATH=$(which node)
-          echo "export NODE_BINARY=$NODE_PATH" > ios/.xcode.env.local
-          echo "export PATH=\$PATH:$(dirname $NODE_PATH)" >> ios/.xcode.env.local
-
       - name: Pre-bundle React Native Assets
         run: |
-          npx react-native bundle --entry-file index.js --platform ios --dev false --bundle-output ios/main.jsbundle --assets-dest ios || true
+          mkdir -p ios/LiveLocation
+          npx expo export:embed --platform ios --dev false --bundle-output ios/main.jsbundle --assets-dest ios || true
 
-      - name: Build Unsigned Physical ARM64 iOS App
+      - name: Build Unsigned Physical ARM64 iOS App (SKIP_BUNDLING=1)
         run: |
           export NODE_BINARY=$(which node)
           cd ios
@@ -44,7 +39,8 @@ jobs:
                      -derivedDataPath build \
                      CODE_SIGN_IDENTITY="" \
                      CODE_SIGNING_REQUIRED=NO \
-                     CODE_SIGNING_ALLOWED=NO
+                     CODE_SIGNING_ALLOWED=NO \
+                     SKIP_BUNDLING=1
 
       - name: Package IPA for iLoader / Sideloadly
         run: |
