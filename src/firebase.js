@@ -1,6 +1,6 @@
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
+import { initializeApp, getApps } from 'firebase/app';
+import { getAuth, signInAnonymously as firebaseSignInAnonymously } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 // Firebase Web Project Credentials
 const firebaseConfig = {
@@ -12,13 +12,10 @@ const firebaseConfig = {
   appId: "1:1234567890:web:abcdef123456"
 };
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-const auth = firebase.auth();
-const db = firebase.firestore();
+const signInAnonymously = (authInstance) => firebaseSignInAnonymously(authInstance || auth);
 
-const signInAnonymously = (authInstance) => authInstance.signInAnonymously();
-
-export { firebase, auth, db, signInAnonymously };
+export { app, auth, db, signInAnonymously };
