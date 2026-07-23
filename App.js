@@ -796,8 +796,8 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
 
-  homeContainer: { flex: 1, backgroundColor: '#0F0F1A' },
-  homeContent: { flex: 1, padding: 24, justifyContent: 'center' },
+  homeContainer: { flex: 1, backgroundColor: '#0F0F1A', width: '100%', height: '100%' },
+  homeContent: { flex: 1, padding: 24, justifyContent: 'center', width: '100%', height: '100%' },
   brandTitle: { color: '#FFF', fontSize: 32, fontWeight: 'extrabold', textAlign: 'center' },
   brandSubtitle: { color: '#888', fontSize: 14, textAlign: 'center', marginTop: 4, marginBottom: 30 },
   errorBox: {
