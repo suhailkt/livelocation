@@ -20,25 +20,37 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Symlink Node to System Path for Xcode
+        run: |
+          NODE_PATH=$(which node)
+          NPX_PATH=$(which npx)
+          sudo mkdir -p /usr/local/bin
+          sudo ln -sf $NODE_PATH /usr/local/bin/node
+          sudo ln -sf $NPX_PATH /usr/local/bin/npx
+          echo "Node verified at: $(/usr/local/bin/node -v)"
+
       - name: Run Expo Prebuild (Generate Native iOS Project)
         run: npx expo prebuild --platform ios
 
       - name: Configure Xcode Node Environment File
         run: |
-          NODE_PATH=$(which node)
-          echo "export NODE_BINARY=$NODE_PATH" > ios/.xcode.env
-          echo "export NODE_BINARY=$NODE_PATH" > ios/.xcode.env.local
-          echo "export PATH=\$PATH:\$(dirname \$NODE_PATH)" >> ios/.xcode.env.local
+          echo "export NODE_BINARY=/usr/local/bin/node" > ios/.xcode.env
+          echo "export NODE_BINARY=/usr/local/bin/node" > ios/.xcode.env.local
+          echo "export PATH=/usr/local/bin:\$PATH" >> ios/.xcode.env
+          echo "export PATH=/usr/local/bin:\$PATH" >> ios/.xcode.env.local
+          cat ios/.xcode.env
 
       - name: Build Unsigned Physical ARM64 iOS App
         run: |
-          export NODE_BINARY=$(which node)
+          export NODE_BINARY=/usr/local/bin/node
+          export PATH=/usr/local/bin:$PATH
           cd ios
           xcodebuild -workspace LiveLocation.xcworkspace \
                      -scheme LiveLocation \
                      -configuration Release \
                      -sdk iphoneos \
                      -derivedDataPath build \
+                     ENTRY_FILE="index.js" \
                      CODE_SIGN_IDENTITY="" \
                      CODE_SIGNING_REQUIRED=NO \
                      CODE_SIGNING_ALLOWED=NO
