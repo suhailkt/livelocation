@@ -8,6 +8,7 @@
     "userInterfaceStyle": "dark",
     "ios": {
       "supportsTablet": true,
+      "deploymentTarget": "15.1",
       "bundleIdentifier": "com.livelocationmit.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,

@@ -69,8 +69,8 @@ jobs:
                      CODE_SIGN_IDENTITY="" \
                      CODE_SIGNING_REQUIRED=NO \
                      CODE_SIGNING_ALLOWED=NO 2>&1 | tee xcodebuild.log || {
-                       echo "=== XCODEBUILD FAILED - PRINTING BUILD LOGS ==="
-                       find build/ -name "*.log" -exec echo "--- LOG: {} ---" \; -exec cat {} \; 2>/dev/null || true
+                       echo "=== XCODEBUILD FAILED - PRINTING EXACT ERROR LOGS FROM xcodebuild.log ==="
+                       grep -C 20 -i "error:" xcodebuild.log || tail -n 150 xcodebuild.log
                        exit 1
                      }
 
