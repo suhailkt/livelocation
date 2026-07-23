@@ -564,6 +564,12 @@ function MainApp() {
         <Text style={styles.brandTitle}>📍 Live Tracker</Text>
         <Text style={styles.brandSubtitle}>Zero-cost real-time peer location sharing</Text>
 
+        <View style={{ backgroundColor: '#00000060', padding: 8, borderRadius: 10, marginBottom: 16, borderWidth: 1, borderColor: '#6C5CE7' }}>
+          <Text style={{ color: '#00FF66', fontSize: 11, textAlign: 'center', fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace', fontWeight: 'bold' }}>
+            ⚡ System: Online | Auth: {user ? 'Connected' : (authError ? 'Error' : 'Signing in...')} | ID: {deviceId ? deviceId.substring(0, 10) : 'Loading...'}
+          </Text>
+        </View>
+
         {authError && (
           <View style={styles.errorBox}>
             <Text style={styles.errorText}>
