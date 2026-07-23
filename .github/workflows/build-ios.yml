@@ -20,31 +20,36 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Symlink Node to System Path for Xcode
+      - name: Symlink Node & Ensure Executable Permissions
         run: |
           NODE_PATH=$(which node)
           NPX_PATH=$(which npx)
           sudo mkdir -p /usr/local/bin
           sudo ln -sf $NODE_PATH /usr/local/bin/node
           sudo ln -sf $NPX_PATH /usr/local/bin/npx
-          echo "Node verified at: $(/usr/local/bin/node -v)"
+          chmod -R +x node_modules/.bin 2>/dev/null || true
+          chmod -R +x node_modules/react-native/sdks/hermesc/osx-bin/ 2>/dev/null || true
 
       - name: Run Expo Prebuild (Generate Native iOS Project)
         run: npx expo prebuild --platform ios
 
-      - name: Configure Xcode Node Environment File
+      - name: Configure Xcode Environment Files
         run: |
-          echo "export NODE_BINARY=/usr/local/bin/node" > ios/.xcode.env
-          echo "export NODE_BINARY=/usr/local/bin/node" > ios/.xcode.env.local
+          NODE_PATH=/usr/local/bin/node
+          echo "export NODE_BINARY=$NODE_PATH" > ios/.xcode.env
+          echo "export NODE_BINARY=$NODE_PATH" > ios/.xcode.env.local
           echo "export PATH=/usr/local/bin:\$PATH" >> ios/.xcode.env
           echo "export PATH=/usr/local/bin:\$PATH" >> ios/.xcode.env.local
-          cat ios/.xcode.env
+          chmod +x ios/.xcode.env ios/.xcode.env.local
 
       - name: Build Unsigned Physical ARM64 iOS App
         run: |
           export NODE_BINARY=/usr/local/bin/node
           export PATH=/usr/local/bin:$PATH
           cd ios
+          
+          # Run xcodebuild and capture full detailed output
+          set -o pipefail
           xcodebuild -workspace LiveLocation.xcworkspace \
                      -scheme LiveLocation \
                      -configuration Release \
@@ -53,7 +58,11 @@ jobs:
                      ENTRY_FILE="index.js" \
                      CODE_SIGN_IDENTITY="" \
                      CODE_SIGNING_REQUIRED=NO \
-                     CODE_SIGNING_ALLOWED=NO
+                     CODE_SIGNING_ALLOWED=NO 2>&1 | tee xcodebuild.log || {
+                       echo "=== XCODEBUILD FAILED - PRINTING SCRIPT LOGS ==="
+                       find build/Build/Intermediates.noindex/ -name "*.log" -exec echo "--- LOG: {} ---" \; -exec cat {} \; 2>/dev/null || true
+                       exit 1
+                     }
 
       - name: Package IPA for iLoader / Sideloadly
         run: |
