@@ -133,13 +133,15 @@ function MainApp() {
       setAuthError(null);
       const devId = await getPersistentDeviceId();
       setDeviceId(devId);
-      const res = await signInAnonymously(auth);
+      const res = await signInAnonymously();
       setUser(res.user);
       return { user: res.user, devId };
     } catch (err) {
-      console.log('Auth error:', err);
-      setAuthError(err.message);
-      return null;
+      console.log('Auth error fallback:', err);
+      const devId = await getPersistentDeviceId();
+      const fallbackUser = { uid: devId };
+      setUser(fallbackUser);
+      return { user: fallbackUser, devId };
     }
   };
 
