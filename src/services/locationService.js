@@ -7,8 +7,15 @@ let locationSubscription = null;
 let lastUploadedPosition = null;
 
 export async function requestLocationPermissions() {
-  const { status } = await Location.requestForegroundPermissionsAsync();
-  return status === 'granted';
+  try {
+    const { status: existingStatus } = await Location.getForegroundPermissionsAsync();
+    if (existingStatus === 'granted') return true;
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    return status === 'granted';
+  } catch (e) {
+    console.log('Permission error:', e);
+    return false;
+  }
 }
 
 export async function startLocationSharing(sessionId, userId, minDistanceMeters = 5) {
