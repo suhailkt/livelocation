@@ -23,11 +23,14 @@ jobs:
       - name: Run Expo Prebuild (Generate Native iOS Project)
         run: npx expo prebuild --platform ios
 
-      - name: Bundle React Native JS & Assets
+      - name: Configure Xcode Node Environment File
         run: |
-          npx expo export:embed --platform ios --dev false --bundle-output ios/main.jsbundle --assets-dest ios/assets
+          NODE_PATH=$(which node)
+          echo "export NODE_BINARY=$NODE_PATH" > ios/.xcode.env
+          echo "export NODE_BINARY=$NODE_PATH" > ios/.xcode.env.local
+          echo "export PATH=\$PATH:\$(dirname \$NODE_PATH)" >> ios/.xcode.env.local
 
-      - name: Build Unsigned Physical ARM64 iOS App (SKIP_BUNDLING=1)
+      - name: Build Unsigned Physical ARM64 iOS App
         run: |
           export NODE_BINARY=$(which node)
           cd ios
@@ -38,15 +41,12 @@ jobs:
                      -derivedDataPath build \
                      CODE_SIGN_IDENTITY="" \
                      CODE_SIGNING_REQUIRED=NO \
-                     CODE_SIGNING_ALLOWED=NO \
-                     SKIP_BUNDLING=1
+                     CODE_SIGNING_ALLOWED=NO
 
-      - name: Package IPA with Embedded Bundle for iLoader
+      - name: Package IPA for iLoader / Sideloadly
         run: |
           mkdir -p Payload
           cp -r ios/build/Build/Products/Release-iphoneos/LiveLocation.app Payload/
-          cp ios/main.jsbundle Payload/LiveLocation.app/main.jsbundle
-          cp -r ios/assets Payload/LiveLocation.app/ 2>/dev/null || true
           zip -r LiveLocation.ipa Payload
 
       - name: Upload iOS IPA Artifact
