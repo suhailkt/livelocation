@@ -609,7 +609,7 @@ function MainApp() {
           </View>
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
