@@ -13,7 +13,8 @@ import {
   FlatList,
   Dimensions,
   Linking,
-  Platform
+  Platform,
+  ScrollView
 } from 'react-native';
 import MapView, { Marker, Callout } from 'react-native-maps';
 import { StatusBar } from 'expo-status-bar';
@@ -44,12 +45,53 @@ if (global.ErrorUtils) {
   });
 }
 
+class RootErrorBoundary extends React.Component {
+  state = { hasError: false, error: null, errorInfo: null };
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    this.setState({ errorInfo });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#141422', padding: 20, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ color: '#FF5252', fontSize: 22, fontWeight: 'bold', marginBottom: 10 }}>
+            🚨 App Render Error
+          </Text>
+          <Text style={{ color: '#FFFFFF', fontSize: 14, marginBottom: 15, textAlign: 'center' }}>
+            {this.state.error?.toString()}
+          </Text>
+          <ScrollView style={{ maxHeight: 250, backgroundColor: '#000', padding: 12, borderRadius: 8, width: '100%' }}>
+            <Text style={{ color: '#FFD700', fontSize: 11, fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>
+              {this.state.errorInfo?.componentStack || this.state.error?.stack}
+            </Text>
+          </ScrollView>
+        </SafeAreaView>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 // Default Fixed Session Code to eliminate dynamic DB creation costs
 const FIXED_SESSION_CODE = 'LIVE12';
 // Participant stale timeout (3 minutes)
 const STALE_TIMEOUT_MS = 3 * 60 * 1000;
 
 export default function App() {
+  return (
+    <RootErrorBoundary>
+      <MainApp />
+    </RootErrorBoundary>
+  );
+}
+
+function MainApp() {
   const [user, setUser] = useState(null);
   const [deviceId, setDeviceId] = useState(null);
   const [displayName, setDisplayName] = useState('Explorer');
