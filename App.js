@@ -558,7 +558,7 @@ function MainApp() {
   }
 
   return (
-    <SafeAreaView style={styles.homeContainer}>
+    <View style={styles.homeContainer}>
       <StatusBar style="light" />
       <View style={styles.homeContent}>
         <Text style={styles.brandTitle}>📍 Live Tracker</Text>
@@ -796,8 +796,8 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
 
-  homeContainer: { flex: 1, backgroundColor: '#0F0F1A', width: '100%', height: '100%' },
-  homeContent: { flex: 1, padding: 24, justifyContent: 'center', width: '100%', height: '100%' },
+  homeContainer: { flex: 1, backgroundColor: '#1A1A2E', paddingTop: Platform.OS === 'ios' ? 50 : 0 },
+  homeContent: { flex: 1, paddingHorizontal: 24, justifyContent: 'center' },
   brandTitle: { color: '#FFF', fontSize: 32, fontWeight: 'extrabold', textAlign: 'center' },
   brandSubtitle: { color: '#888', fontSize: 14, textAlign: 'center', marginTop: 4, marginBottom: 30 },
   errorBox: {
