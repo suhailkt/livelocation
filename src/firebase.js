@@ -13,9 +13,25 @@ const firebaseConfig = {
 };
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-const auth = getAuth(app);
+
+let authInstance = null;
+function getFirebaseAuth() {
+  if (!authInstance) {
+    authInstance = getAuth(app);
+  }
+  return authInstance;
+}
+
 const db = getFirestore(app);
 
-const signInAnonymously = (authInstance) => firebaseSignInAnonymously(authInstance || auth);
+const signInAnonymously = async () => {
+  try {
+    const authObj = getFirebaseAuth();
+    return await firebaseSignInAnonymously(authObj);
+  } catch (e) {
+    console.log('Firebase signInAnonymously error:', e);
+    throw e;
+  }
+};
 
-export { app, auth, db, signInAnonymously };
+export { app, getFirebaseAuth, db, signInAnonymously };

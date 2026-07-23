@@ -170,7 +170,7 @@ function MainApp() {
 
   const handleStartSession = async () => {
     let devId = deviceId;
-    let currentUser = user || auth.currentUser;
+    let currentUser = user || (typeof auth === 'function' ? auth()?.currentUser : null);
 
     if (!currentUser || !devId) {
       setIsLoading(true);
